@@ -6,7 +6,6 @@ import uco.doo.rugrats.uconnect.data.dao.relational.SqlDAO;
 import uco.doo.rugrats.uconnect.entities.ComentarioEntity;
 import uco.doo.rugrats.uconnect.utils.Messages;
 import uco.doo.rugrats.uconnect.utils.UtilObject;
-import uco.doo.rugrats.uconnect.utils.UtilText;
 import uco.doo.rugrats.uconnect.utils.UtilUUID;
 
 import java.sql.Timestamp;
@@ -30,8 +29,8 @@ public final class ComentarioPostgreSqlDAO extends SqlDAO<ComentarioEntity> impl
 			preparedStatement.setObject(1, entity.getIdentificador());
 			preparedStatement.setTimestamp(2, Timestamp.valueOf(entity.getFechaComentario()));
 			preparedStatement.setObject(3, entity.getPublicacion().getIdentificador());
-			preparedStatement.setBoolean(4, entity.getTienePadre());
-			preparedStatement.setObject(5, entity.getTienePadre() ? entity.getComentarioPadre().getIdentificador() : null);
+			preparedStatement.setBoolean(4, entity.isTienePadre());
+			preparedStatement.setObject(5, entity.isTienePadre() ? entity.getComentarioPadre().getIdentificador() : null);
 			preparedStatement.setObject(6, entity.getAutor().getIdentificador());
 			preparedStatement.setString(7, entity.getContenido());
 			preparedStatement.setObject(8, entity.getEstado().getIdentificador());
