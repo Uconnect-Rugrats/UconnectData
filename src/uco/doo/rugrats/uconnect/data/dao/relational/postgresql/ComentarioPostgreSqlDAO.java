@@ -120,7 +120,7 @@ public final class ComentarioPostgreSqlDAO extends SqlDAO<ComentarioEntity> impl
 			
 			if (!UtilUUID.isDefault(entity.getIdentificador())) {
 				parameters.add(entity.getIdentificador());
-				where.append("WHERE e.identificador = ? ");
+				where.append("WHERE com.identificador = ? ");
 				setWhere = false;
 			}
 		}	
