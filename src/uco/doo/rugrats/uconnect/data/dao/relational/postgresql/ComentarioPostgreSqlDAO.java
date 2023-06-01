@@ -136,32 +136,42 @@ public final class ComentarioPostgreSqlDAO extends SqlDAO<ComentarioEntity> impl
 				where.append("WHERE com.identificador = ? ");
 				setWhere = false;
 			}
-			if (!UtilObject.isDefault(entity.getAutor(), ParticipanteGrupoEntity.create())) {
+			if (!UtilUUID.isDefault(entity.getAutor().getIdentificador())) {
+				System.out.println(UtilObject.getInstanceInString(entity.getAutor()));
+				System.out.println(UtilObject.getInstanceInString(ParticipanteGrupoEntity.create()));
 				parameters.add(entity.getAutor().getIdentificador());
 				where.append(UtilSql.appendWhereOrAnd(setWhere)).append("com.autor = ? ");
 				setWhere = false;
 			}
-			/*if (!UtilDate.isNull(entity.getFechaComentario())) {
-				parameters.add(entity.getFechaComentario());
-				where.append(UtilSql.appendWhereOrAnd(setWhere)).append("com.fecha = ? ");
-				setWhere = false;
-			}
-			if (!UtilObject.isDefault(entity.getPublicacion(), PublicacionEntity.create())) {
+//			if (!UtilDate.isNull(entity.getFechaComentario())) {
+//				System.out.println(entity.getFechaComentario());
+//				parameters.add(entity.getFechaComentario());
+//				where.append(UtilSql.appendWhereOrAnd(setWhere)).append("com.fecha = ? ");
+//				setWhere = false;
+//			}
+			if (!UtilUUID.isDefault(entity.getPublicacion().getIdentificador())) {
+				System.out.println(UtilObject.getInstanceInString(entity.getPublicacion()));
+				System.out.println(UtilObject.getInstanceInString(PublicacionEntity.create()));
 				parameters.add(entity.getPublicacion().getIdentificador());
 				where.append(UtilSql.appendWhereOrAnd(setWhere)).append("com.publicacion = ? ");
 				setWhere = false;
-			}*/
-			if (!UtilObject.isDefault(entity.getComentarioPadre(), ComentarioEntity.create())) {
+			}
+			if (!UtilUUID.isDefault(entity.getComentarioPadre().getIdentificador())){
+				System.out.println(UtilObject.getInstanceInString(entity.getComentarioPadre()));
+				System.out.println(UtilObject.getInstanceInString(ComentarioEntity.create()));
 				parameters.add(entity.getComentarioPadre().getIdentificador());
 				where.append(UtilSql.appendWhereOrAnd(setWhere)).append("com.\"comentarioPadre\" = ? ");
 				setWhere = false;
 			}
-			if (!UtilObject.isDefault(entity.getEstado(), EstadoEntity.create())) {
+			if (!UtilUUID.isDefault(entity.getEstado().getIdentificador())) {
+				System.out.println(UtilObject.getInstanceInString(entity.getEstado()));
+				System.out.println(EstadoEntity.create());
 				parameters.add(entity.getEstado().getIdentificador());
 				where.append(UtilSql.appendWhereOrAnd(setWhere)).append("com.estado = ? ");
 			}
 			
-		}	
+		}
+		System.out.println(where.toString());
 		return where.toString();
 	}
 	@Override
@@ -511,4 +521,5 @@ final List<ComentarioEntity> result = new ArrayList<>();
 
 		}
 	}
+	
 }
