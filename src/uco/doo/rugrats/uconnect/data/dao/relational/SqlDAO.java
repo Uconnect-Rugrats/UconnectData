@@ -5,8 +5,8 @@ import java.sql.PreparedStatement;
 import java.util.List;
 
 import uco.doo.rugrats.uconnect.crosscutting.exception.UconnectDataException;
-import uco.doo.rugrats.uconnect.utils.Messages;
 import uco.doo.rugrats.uconnect.utils.UtilSql;
+import uco.doo.rugrats.uconnect.utils.messages.UconnectDataMessages;
 
 public abstract class SqlDAO<E> {
 	private Connection connection;
@@ -21,7 +21,7 @@ public abstract class SqlDAO<E> {
 	
 	private final void setConnection(final Connection connection) {
 		if (!UtilSql.connectionIsOpen(connection)) {
-			throw UconnectDataException.create(Messages.SqlDAO.TECHNICAL_MESSAGE_CONNECTION_NOT_OPEN, Messages.SqlDAO.USER_MESSAGE_CONNECTION_NOT_OPEN);
+			throw UconnectDataException.create(UconnectDataMessages.SqlDAO.TECHNICAL_MESSAGE_CONNECTION_NOT_OPEN, UconnectDataMessages.SqlDAO.USER_MESSAGE_CONNECTION_NOT_OPEN);
 		}		
 		this.connection = connection;
 	}

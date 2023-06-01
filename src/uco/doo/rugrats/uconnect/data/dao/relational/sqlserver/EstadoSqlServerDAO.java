@@ -5,7 +5,6 @@ import uco.doo.rugrats.uconnect.entities.EstadoEntity;
 
 import java.sql.Connection;
 import java.util.List;
-import java.util.UUID;
 
 
 public final class EstadoSqlServerDAO implements EstadoDAO {

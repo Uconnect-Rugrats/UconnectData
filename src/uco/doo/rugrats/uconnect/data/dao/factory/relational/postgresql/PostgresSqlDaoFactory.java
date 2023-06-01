@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.pool.HikariPool;
 
 import uco.doo.rugrats.uconnect.crosscutting.exception.UconnectDataException;
 import uco.doo.rugrats.uconnect.data.dao.AdministradorEstructuraDAO;
@@ -77,8 +78,8 @@ import uco.doo.rugrats.uconnect.data.dao.relational.postgresql.TipoEventoPostgre
 import uco.doo.rugrats.uconnect.data.dao.relational.postgresql.TipoIdentificacionPostgreSqlDAO;
 import uco.doo.rugrats.uconnect.data.dao.relational.postgresql.TipoOrganizacionPostgreSqlDAO;
 import uco.doo.rugrats.uconnect.data.dao.relational.postgresql.TipoReaccionPostgreSqlDAO;
-import uco.doo.rugrats.uconnect.utils.Messages;
 import uco.doo.rugrats.uconnect.utils.UtilSql;
+import uco.doo.rugrats.uconnect.utils.messages.UconnectDataMessages;
 
 public class PostgresSqlDaoFactory extends DAOFactory {
 
@@ -99,8 +100,11 @@ public class PostgresSqlDaoFactory extends DAOFactory {
 			config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
 
 			DATASOURCE = new HikariDataSource(config);
-		} catch (Exception e) {
-			throw e;
+			
+		} catch (final HikariPool.PoolInitializationException exception) {
+			throw UconnectDataException.create(UconnectDataMessages.PostgreSqlDAO.TECHNICAL_MESSAGE_DATASOURCE_HIKARI_EXCEPTION, UconnectDataMessages.PostgreSqlDAO.USER_MESSAGE_DATASOURCE, exception);
+		} catch (final Exception exception) {
+			throw UconnectDataException.create(UconnectDataMessages.PostgreSqlDAO.TECHNICAL_MESSAGE_DATASOURCE_EXCEPTION, UconnectDataMessages.PostgreSqlDAO.USER_MESSAGE_DATASOURCE, exception);
 		}
 	}
 
@@ -112,9 +116,12 @@ public class PostgresSqlDaoFactory extends DAOFactory {
 	protected void openConnection() {
 		try {
 			connection = DATASOURCE.getConnection();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch blockJnwYqKUX1N9Skfs1WfetoscUE431ULfU
-			e.printStackTrace();
+		} catch (final HikariPool.PoolInitializationException exception) {
+			throw UconnectDataException.create(UconnectDataMessages.PostgreSqlDAO.TECHNICAL_MESSAGE_OPEN_CONNECTION_DS_HIKARI_EXCEPTION, UconnectDataMessages.PostgreSqlDAO.USER_MESSAGE_OPEN_CONNECTION_DS, exception);
+		} catch (final SQLException exception) {
+			throw UconnectDataException.create(UconnectDataMessages.PostgreSqlDAO.TECHNICAL_MESSAGE_OPEN_CONNECTION_DS_SQL_EXCEPTION, UconnectDataMessages.PostgreSqlDAO.USER_MESSAGE_OPEN_CONNECTION_DS, exception);
+		} catch (final Exception exception) {
+			throw UconnectDataException.create(UconnectDataMessages.PostgreSqlDAO.TECHNICAL_MESSAGE_OPEN_CONNECTION_DS_EXCEPTION, UconnectDataMessages.PostgreSqlDAO.USER_MESSAGE_OPEN_CONNECTION_DS, exception);
 		}
 	}
 
@@ -129,9 +136,7 @@ public class PostgresSqlDaoFactory extends DAOFactory {
 			try {
 				connection.setAutoCommit(false);
 			} catch (SQLException exception) {
-				var userMessage = Messages.UtilSqlMessages.BEGIN_TRANSACTION_USER_MESSAGE;
-				var technicalMessage = Messages.UtilSqlMessages.BEGIN_TRANSACTION_TECHNICAL_MESSAGE;
-				throw UconnectDataException.create(technicalMessage, userMessage, exception);
+				throw UconnectDataException.create(UconnectDataMessages.UtilSqlMessages.INIT_TRANSACTION_TECHNICAL_MESSAGE, UconnectDataMessages.UtilSqlMessages.INIT_TRANSACTION_USER_MESSAGE, exception);
 			}
 		}
 	}
@@ -141,9 +146,8 @@ public class PostgresSqlDaoFactory extends DAOFactory {
 		if (UtilSql.connectionIsOpen(connection)) {
 			try {
 				connection.commit();
-			} catch (SQLException e) {
-				rollbackTransaction();
-				e.printStackTrace();
+			} catch (SQLException exception) {
+				throw UconnectDataException.create(UconnectDataMessages.UtilSqlMessages.COMMIT_TRANSACTION_TECHNICAL_MESSAGE, UconnectDataMessages.UtilSqlMessages.COMMIT_TRANSACTION_USER_MESSAGE, exception);
 			}
 		}
 	}
@@ -154,36 +158,9 @@ public class PostgresSqlDaoFactory extends DAOFactory {
 			try {
 				connection.rollback();
 			} catch (SQLException exception) {
-				var userMessage = Messages.UtilSqlMessages.CANCEL_TRANSACTION_USER_MESSAGE;
-				var technicalMessage = Messages.UtilSqlMessages.CANCEL_TRANSACTION_TECHNICAL_MESSAGE;
-				throw UconnectDataException.create(technicalMessage, userMessage, exception);
+				throw UconnectDataException.create(UconnectDataMessages.UtilSqlMessages.ROLLBACK_TRANSACTION_TECHNICAL_MESSAGE, UconnectDataMessages.UtilSqlMessages.ROLLBACK_TRANSACTION_USER_MESSAGE, exception);
 			}
 		}
-	}
-
-	public List<String> getTiposEstados() {
-		List<String> tipos = new ArrayList<>();
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-
-		try {
-			initTransaction();
-			ps = connection.prepareStatement(
-					"SELECT \"TipoEstado\".nombre FROM \"Estado\" JOIN \"TipoEstado\" ON \"TipoEstado\".identificador = \"Estado\".tipo;");
-			rs = ps.executeQuery();
-			while (rs.next()) {
-				tipos.add(rs.getString("nombre"));
-			}
-			commitTransaction();
-		} catch (SQLException ex) {
-			rollbackTransaction();
-			ex.printStackTrace();
-		} finally {
-			UtilSql.closeResultSet(rs);
-			UtilSql.closePreparedStatement(ps);
-		}
-
-		return tipos;
 	}
 
 	@Override
@@ -193,7 +170,6 @@ public class PostgresSqlDaoFactory extends DAOFactory {
 
 	@Override
 	public EstadoDAO getEstadoDAO() {
-		// TODO Auto-generated method stub
 		return new EstadoPostgreSqlDAO(connection);
 	}
 
@@ -351,21 +327,6 @@ public class PostgresSqlDaoFactory extends DAOFactory {
 	public TipoReaccionDAO getTipoReaccionDAO() {
 		return new TipoReaccionPostgreSqlDAO(connection);
 	}
-
-	public static void main(String[] args) {
-		int i = 0;
-
-		try {
-			while (true) {
-				DATASOURCE.getConnection();
-				System.out.println("conexión " + i++);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		System.out.println(i);
-
-	}
-
+	
+	
 }
