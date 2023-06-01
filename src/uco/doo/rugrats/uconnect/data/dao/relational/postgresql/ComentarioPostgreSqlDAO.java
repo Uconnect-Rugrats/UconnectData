@@ -4,9 +4,23 @@ import uco.doo.rugrats.uconnect.crosscutting.exception.UconnectDataException;
 import uco.doo.rugrats.uconnect.data.dao.ComentarioDAO;
 import uco.doo.rugrats.uconnect.data.dao.relational.SqlDAO;
 import uco.doo.rugrats.uconnect.entities.ComentarioEntity;
-import uco.doo.rugrats.uconnect.utils.Messages;
+import uco.doo.rugrats.uconnect.entities.EstadoEntity;
+import uco.doo.rugrats.uconnect.entities.EstructuraEntity;
+import uco.doo.rugrats.uconnect.entities.GrupoEntity;
+import uco.doo.rugrats.uconnect.entities.OrganizacionEntity;
+import uco.doo.rugrats.uconnect.entities.PaisEntity;
+import uco.doo.rugrats.uconnect.entities.ParticipanteEntity;
+import uco.doo.rugrats.uconnect.entities.ParticipanteGrupoEntity;
+import uco.doo.rugrats.uconnect.entities.PersonaEntity;
+import uco.doo.rugrats.uconnect.entities.PublicacionEntity;
+import uco.doo.rugrats.uconnect.entities.TipoEstadoEntity;
+import uco.doo.rugrats.uconnect.entities.TipoIdentificacionEntity;
+import uco.doo.rugrats.uconnect.entities.TipoOrganizacionEntity;
+import uco.doo.rugrats.uconnect.utils.UtilDate;
 import uco.doo.rugrats.uconnect.utils.UtilObject;
+import uco.doo.rugrats.uconnect.utils.UtilSql;
 import uco.doo.rugrats.uconnect.utils.UtilUUID;
+import uco.doo.rugrats.uconnect.utils.messages.UconnectDataMessages;
 
 import java.sql.Timestamp;
 import java.sql.Connection;
@@ -38,10 +52,10 @@ public final class ComentarioPostgreSqlDAO extends SqlDAO<ComentarioEntity> impl
 			preparedStatement.executeUpdate();
 
 		}catch (SQLException exception) {
-			throw UconnectDataException.create(Messages.SqlDAO.ComentarioSql.TECHNICAL_MESSAGE_CREATE, Messages.SqlDAO.ComentarioSql.USER_MESSAGE_CREATE, exception);
+			throw UconnectDataException.create(UconnectDataMessages.SqlDAO.ComentarioSqlDao.TECHNICAL_MESSAGE_CREATE, UconnectDataMessages.SqlDAO.ComentarioSqlDao.USER_MESSAGE_CREATE, exception);
 
 		}catch (Exception exception) {
-			throw UconnectDataException.create(Messages.SqlDAO.ComentarioSql.TECHNICAL_MESSAGE_CREATE_JAVA_EXCEPTION, Messages.SqlDAO.ComentarioSql.USER_MESSAGE_CREATE, exception);
+			throw UconnectDataException.create(UconnectDataMessages.SqlDAO.ComentarioSqlDao.TECHNICAL_MESSAGE_CREATE_JAVA_EXCEPTION, UconnectDataMessages.SqlDAO.ComentarioSqlDao.USER_MESSAGE_CREATE, exception);
 		}
     }
 
@@ -61,10 +75,10 @@ public final class ComentarioPostgreSqlDAO extends SqlDAO<ComentarioEntity> impl
 			return executeQuery(preparedstatement);
 			
 		} catch (SQLException exception) {
-			throw UconnectDataException.create(Messages.SqlDAO.ComentarioSql.TECHNICAL_MESSAGE_READ, Messages.SqlDAO.ComentarioSql.USER_MESSAGE_READ, exception);
+			throw UconnectDataException.create(UconnectDataMessages.SqlDAO.ComentarioSqlDao.TECHNICAL_MESSAGE_READ, UconnectDataMessages.SqlDAO.ComentarioSqlDao.USER_MESSAGE_READ, exception);
 			
 		}catch (Exception exception) {
-			throw UconnectDataException.create(Messages.SqlDAO.ComentarioSql.TECHNICAL_MESSAGE_READ_JAVA_EXCEPTION, Messages.SqlDAO.ComentarioSql.USER_MESSAGE_READ, exception);
+			throw UconnectDataException.create(UconnectDataMessages.SqlDAO.ComentarioSqlDao.TECHNICAL_MESSAGE_READ_JAVA_EXCEPTION, UconnectDataMessages.SqlDAO.ComentarioSqlDao.USER_MESSAGE_READ, exception);
 		}
     }
 
@@ -79,10 +93,10 @@ public final class ComentarioPostgreSqlDAO extends SqlDAO<ComentarioEntity> impl
 			preparedStatement.executeUpdate();
 
 		}catch (SQLException exception) {
-			throw UconnectDataException.create(Messages.SqlDAO.ComentarioSql.TECHNICAL_MESSAGE_UPDATE, Messages.SqlDAO.ComentarioSql.USER_MESSAGE_UPDATE, exception);
+			throw UconnectDataException.create(UconnectDataMessages.SqlDAO.ComentarioSqlDao.TECHNICAL_MESSAGE_UPDATE, UconnectDataMessages.SqlDAO.ComentarioSqlDao.USER_MESSAGE_UPDATE, exception);
 
 		}catch (Exception exception) {
-			throw UconnectDataException.create(Messages.SqlDAO.ComentarioSql.TECHNICAL_MESSAGE_UPDATE_JAVA_EXCEPTION, Messages.SqlDAO.ComentarioSql.USER_MESSAGE_UPDATE, exception);
+			throw UconnectDataException.create(UconnectDataMessages.SqlDAO.ComentarioSqlDao.TECHNICAL_MESSAGE_UPDATE_JAVA_EXCEPTION, UconnectDataMessages.SqlDAO.ComentarioSqlDao.USER_MESSAGE_UPDATE, exception);
 		}
     }
 
@@ -96,15 +110,15 @@ public final class ComentarioPostgreSqlDAO extends SqlDAO<ComentarioEntity> impl
 			preparedStatement.executeUpdate();
 
 		}catch (SQLException exception) {
-			throw UconnectDataException.create(Messages.SqlDAO.ComentarioSql.TECHNICAL_MESSAGE_DELETE, Messages.SqlDAO.ComentarioSql.USER_MESSAGE_DELETE, exception);
+			throw UconnectDataException.create(UconnectDataMessages.SqlDAO.ComentarioSqlDao.TECHNICAL_MESSAGE_DELETE, UconnectDataMessages.SqlDAO.ComentarioSqlDao.USER_MESSAGE_DELETE, exception);
 		}catch (Exception exception) {
-			throw UconnectDataException.create(Messages.SqlDAO.ComentarioSql.TECHNICAL_MESSAGE_DELETE_JAVA_EXCEPTION, Messages.SqlDAO.ComentarioSql.USER_MESSAGE_DELETE, exception);
+			throw UconnectDataException.create(UconnectDataMessages.SqlDAO.ComentarioSqlDao.TECHNICAL_MESSAGE_DELETE_JAVA_EXCEPTION, UconnectDataMessages.SqlDAO.ComentarioSqlDao.USER_MESSAGE_DELETE, exception);
 		}
     }
     
 	@Override
 	protected String preparedSelect() {
-		return "SELECT com.identificador comid,  com.fecha comfecha,  com.publicacion compub, pub.\"fechaPublicacion\" pubfecha, pub.titulo pubtitulo, pub.autor pubautor, pubprtgrp.grupo pubprtgrpgrp, pubprtgrpgrp.estructura pubprtgrpgrpstr, pubprtgrpgrpstr.nombre pubprtgrpgrpstrnm, pubprtgrpgrpstr.\"tienePadre\" pubprtgrpgrpstrtnpd, pubprtgrpgrpstr.\"estructuraPadre\" pubprtgrpgrpstrpd, pubprtgrpgrpstr.organizacion pubprtgrpgrpstrorg, pubprtgrpgrpstrorg.nombre pubprtgrpgrpstrorgnm, pubprtgrpgrpstrorg.descripcion pubprtgrpgrpstrorgdesc, pubprtgrpgrpstrorg.\"tipoOrganizacion\" pubprtgrpgrpstrorgtp, pubprtgrpgrpstrorgtp.nombre pubprtgrpgrpstrorgtpnm, pubprtgrpgrpstrorgtp.descripcion pubprtgrpgrpstrorgtpdesc, pubprtgrpgrpstrorg.estado pubprtgrpgrpstrorgest, pubprtgrpgrpstrorgest.nombre pubprtgrpgrpstrorgestnm, pubprtgrpgrpstrorgest.descripcion pubprtgrpgrpstrorgestdesc, pubprtgrpgrpstrorgest.\"tipoEstado\" pubprtgrpgrpstrorgteest, pubprtgrpgrpstrorgteest.nombre pubprtgrpgrpstrorgteestnm, pubprtgrpgrpstrorgteest.descripcion pubprtgrpgrpstrorgteestdesc, pubprtgrpgrpstr.estado pubprtgrpgrpstrest, pubprtgrpgrpstrest.nombre pubprtgrpgrpstrestnm, pubprtgrpgrpstrest.descripcion pubprtgrpgrpstrestdesc, pubprtgrpgrpstrest.\"tipoEstado\" pubprtgrpgrpstrteest, pubprtgrpgrpstrteest.nombre pubprtgrpgrpstrteestnm, pubprtgrpgrpstrteest.descripcion pubprtgrpgrpstrteestdesc, pubprtgrpgrp.nombre pubprtgrpgrpnm, pubprtgrpgrp.estado pubprtgrpgrpest, pubprtgrpgrpest.nombre pubprtgrpgrpestnm, pubprtgrpgrpest.descripcion pubprtgrpgrpestdesc, pubprtgrpgrpest.\"tipoEstado\" pubprtgrpgrpteest, pubprtgrpgrpteest.nombre pubprtgrpgrpteestnm, pubprtgrpgrpteest.descripcion pubprtgrpgrpteestdesc, pubprtgrp.participante pubprtgrpprt, pubprtgrpprt.persona pubprtgrpprtip, pubprtgrpprtip.\"tipoIdentificacion\" pubprtgrpprtiptpid, pubprtgrpprtip.\"numeroIdentificacion\" pubprtgrpprtipid, pubprtgrpprtipid.nombre pubprtgrpprtipidnm, pubprtgrpprtipid.descripcion pubprtgrpprtipiddesc, pubprtgrpprtip.\"primerNombre\" pubprtgrpprtipn1, pubprtgrpprtip.\"segundoNombre\" pubprtgrpprtipn2, pubprtgrpprtip.\"primerApellido\" pubprtgrpprtipa1, pubprtgrpprtip.\"segundoApellido\" pubprtgrpprtipa2, pubprtgrpprtip.\"correoElectronico\" pubprtgrpprtipmail, pubprtgrpprtip.\"paisTelefono\" pubprtgrpprtipps, pubprtgrpprtipps.nombre pubprtgrpprtippsnm, pubprtgrpprtip.\"numeroTelefono\", pubprtgrpprtip.estado pubprtgrpprtipest, pubprtgrpprtipest.nombre pubprtgrpprtipestnm, pubprtgrpprtipest.descripcion pubprtgrpprtipestdesc, pubprtgrpprtipest.\"tipoEstado\" pubprtgrpprtipteest, pubprtgrpprtipteest.nombre pubprtgrpprtipteestnm, pubprtgrpprtipteest.descripcion pubprtgrpprtipteestdesc, pubprtgrp.\"puedePublicar\" pubprtgrpgrppdpbc, pub.contenido pubcont, pub.estado pubestado, pubest.nombre pubestnm, pubest.descripcion pubestdesc, pubest.\"tipoEstado\" pubteest, pubteest.nombre pubteestnm, pubteest.descripcion pubteestdesc, com.\"tienePadre\" comtnpdr, com.\"comentarioPadre\" compadre,  com.autor comautor, comprtgrp.grupo comprtgrpgrp, comprtgrpgrp.estructura comprtgrpgrpstr, comprtgrpgrpstr.nombre comprtgrpgrpstrnm, comprtgrpgrpstr.\"tienePadre\" comprtgrpgrpstrtnpd, comprtgrpgrpstr.\"estructuraPadre\" comprtgrpgrpstrpd, comprtgrpgrpstr.organizacion comprtgrpgrpstrorg, comprtgrpgrpstrorg.nombre comprtgrpgrpstrorgnm, comprtgrpgrpstrorg.descripcion comprtgrpgrpstrorgdesc, comprtgrpgrpstrorg.\"tipoOrganizacion\" comprtgrpgrpstrorgtp, comprtgrpgrpstrorgtp.nombre comprtgrpgrpstrorgtpnm, comprtgrpgrpstrorgtp.descripcion comprtgrpgrpstrorgtpdesc, comprtgrpgrpstrorg.estado comprtgrpgrpstrorgest, comprtgrpgrpstrorgest.nombre comprtgrpgrpstrorgestnm, comprtgrpgrpstrorgest.descripcion comprtgrpgrpstrorgestdesc, comprtgrpgrpstrorgest.\"tipoEstado\" comprtgrpgrpstrorgteest, comprtgrpgrpstrorgteest.nombre comprtgrpgrpstrorgteestnm, comprtgrpgrpstrorgteest.descripcion comprtgrpgrpstrorgteestdesc, comprtgrpgrpstr.estado comprtgrpgrpstrest, comprtgrpgrpstrest.nombre comprtgrpgrpstrestnm, comprtgrpgrpstrest.descripcion comprtgrpgrpstrestdesc, comprtgrpgrpstrest.\"tipoEstado\" comprtgrpgrpstrteest, comprtgrpgrpstrteest.nombre comprtgrpgrpstrteestnm, comprtgrpgrpstrteest.descripcion comprtgrpgrpstrteestdesc, comprtgrpgrp.nombre comprtgrpgrpnm, comprtgrpgrp.estado comprtgrpgrpest, comprtgrpgrpest.nombre comprtgrpgrpestnm, comprtgrpgrpest.descripcion comprtgrpgrpestdesc, comprtgrpgrpest.\"tipoEstado\" comprtgrpgrpteest, comprtgrpgrpteest.nombre comprtgrpgrpteestnm, comprtgrpgrpteest.descripcion comprtgrpgrpteestdesc, comprtgrp.participante comprtgrpprt, comprtgrpprt.persona comprtgrpprtip, comprtgrpprtip.\"tipoIdentificacion\" comprtgrpprtiptpid, comprtgrpprtip.\"numeroIdentificacion\" comprtgrpprtipid, comprtgrpprtipid.nombre comprtgrpprtipidnm, comprtgrpprtipid.descripcion comprtgrpprtipiddesc, comprtgrpprtip.\"primerNombre\" comprtgrpprtipn1, comprtgrpprtip.\"segundoNombre\" comprtgrpprtipn2, comprtgrpprtip.\"primerApellido\" comprtgrpprtipa1, comprtgrpprtip.\"segundoApellido\" comprtgrpprtipa2, comprtgrpprtip.\"correoElectronico\" comprtgrpprtipmail, comprtgrpprtip.\"paisTelefono\" comprtgrpprtipps, comprtgrpprtipps.nombre comprtgrpprtippsnm, comprtgrpprtip.\"numeroTelefono\", comprtgrpprtip.estado comprtgrpprtipest, comprtgrpprtipest.nombre comprtgrpprtipestnm, comprtgrpprtipest.descripcion comprtgrpprtipestdesc, comprtgrpprtipest.\"tipoEstado\" comprtgrpprtipteest, comprtgrpprtipteest.nombre comprtgrpprtipteestnm, comprtgrpprtipteest.descripcion comprtgrpprtipteestdesc, comprtgrp.\"puedePublicar\" comprtgrpgrppdpbc, com.contenido comcont,  com.estado comest, comest.nombre comestnm, comest.descripcion comestdesc, comest.\"tipoEstado\" comteest, comteest.nombre comteestnm,  comteest.descripcion comteestdesc ";
+		return "SELECT com.identificador comid,  com.fecha comfecha,  com.publicacion compub, pub.\"fechaPublicacion\" pubfecha, pub.titulo pubtitulo, pub.autor pubautor, pubprtgrp.grupo pubprtgrpgrp, pubprtgrpgrp.estructura pubprtgrpgrpstr, pubprtgrpgrpstr.nombre pubprtgrpgrpstrnm, pubprtgrpgrpstr.\"tienePadre\" pubprtgrpgrpstrtnpd, pubprtgrpgrpstr.\"estructuraPadre\" pubprtgrpgrpstrpd, pubprtgrpgrpstr.organizacion pubprtgrpgrpstrorg, pubprtgrpgrpstrorg.nombre pubprtgrpgrpstrorgnm, pubprtgrpgrpstrorg.descripcion pubprtgrpgrpstrorgdesc, pubprtgrpgrpstrorg.\"tipoOrganizacion\" pubprtgrpgrpstrorgtp, pubprtgrpgrpstrorgtp.nombre pubprtgrpgrpstrorgtpnm, pubprtgrpgrpstrorgtp.descripcion pubprtgrpgrpstrorgtpdesc, pubprtgrpgrpstrorg.estado pubprtgrpgrpstrorgest, pubprtgrpgrpstrorgest.nombre pubprtgrpgrpstrorgestnm, pubprtgrpgrpstrorgest.descripcion pubprtgrpgrpstrorgestdesc, pubprtgrpgrpstrorgest.\"tipoEstado\" pubprtgrpgrpstrorgteest, pubprtgrpgrpstrorgteest.nombre pubprtgrpgrpstrorgteestnm, pubprtgrpgrpstrorgteest.descripcion pubprtgrpgrpstrorgteestdesc, pubprtgrpgrpstr.estado pubprtgrpgrpstrest, pubprtgrpgrpstrest.nombre pubprtgrpgrpstrestnm, pubprtgrpgrpstrest.descripcion pubprtgrpgrpstrestdesc, pubprtgrpgrpstrest.\"tipoEstado\" pubprtgrpgrpstrteest, pubprtgrpgrpstrteest.nombre pubprtgrpgrpstrteestnm, pubprtgrpgrpstrteest.descripcion pubprtgrpgrpstrteestdesc, pubprtgrpgrp.nombre pubprtgrpgrpnm, pubprtgrpgrp.estado pubprtgrpgrpest, pubprtgrpgrpest.nombre pubprtgrpgrpestnm, pubprtgrpgrpest.descripcion pubprtgrpgrpestdesc, pubprtgrpgrpest.\"tipoEstado\" pubprtgrpgrpteest, pubprtgrpgrpteest.nombre pubprtgrpgrpteestnm, pubprtgrpgrpteest.descripcion pubprtgrpgrpteestdesc, pubprtgrp.participante pubprtgrpprt, pubprtgrpprt.persona pubprtgrpprtip, pubprtgrpprtip.\"tipoIdentificacion\" pubprtgrpprtiptpid, pubprtgrpprtip.\"numeroIdentificacion\" pubprtgrpprtipid, pubprtgrpprtipid.nombre pubprtgrpprtipidnm, pubprtgrpprtipid.descripcion pubprtgrpprtipiddesc, pubprtgrpprtip.\"primerNombre\" pubprtgrpprtipn1, pubprtgrpprtip.\"segundoNombre\" pubprtgrpprtipn2, pubprtgrpprtip.\"primerApellido\" pubprtgrpprtipa1, pubprtgrpprtip.\"segundoApellido\" pubprtgrpprtipa2, pubprtgrpprtip.\"correoElectronico\" pubprtgrpprtipmail, pubprtgrpprtip.\"paisTelefono\" pubprtgrpprtipps, pubprtgrpprtipps.nombre pubprtgrpprtippsnm, pubprtgrpprtip.\"numeroTelefono\" pubprtgrpprtipphone, pubprtgrpprtip.estado pubprtgrpprtipest, pubprtgrpprtipest.nombre pubprtgrpprtipestnm, pubprtgrpprtipest.descripcion pubprtgrpprtipestdesc, pubprtgrpprtipest.\"tipoEstado\" pubprtgrpprtipteest, pubprtgrpprtipteest.nombre pubprtgrpprtipteestnm, pubprtgrpprtipteest.descripcion pubprtgrpprtipteestdesc, pubprtgrp.\"puedePublicar\" pubprtgrpgrppdpbc, pub.contenido pubcont, pub.estado pubestado, pubest.nombre pubestnm, pubest.descripcion pubestdesc, pubest.\"tipoEstado\" pubteest, pubteest.nombre pubteestnm, pubteest.descripcion pubteestdesc, com.\"tienePadre\" comtnpdr, com.\"comentarioPadre\" compadre,  com.autor comautor, comprtgrp.grupo comprtgrpgrp, comprtgrpgrp.estructura comprtgrpgrpstr, comprtgrpgrpstr.nombre comprtgrpgrpstrnm, comprtgrpgrpstr.\"tienePadre\" comprtgrpgrpstrtnpd, comprtgrpgrpstr.\"estructuraPadre\" comprtgrpgrpstrpd, comprtgrpgrpstr.organizacion comprtgrpgrpstrorg, comprtgrpgrpstrorg.nombre comprtgrpgrpstrorgnm, comprtgrpgrpstrorg.descripcion comprtgrpgrpstrorgdesc, comprtgrpgrpstrorg.\"tipoOrganizacion\" comprtgrpgrpstrorgtp, comprtgrpgrpstrorgtp.nombre comprtgrpgrpstrorgtpnm, comprtgrpgrpstrorgtp.descripcion comprtgrpgrpstrorgtpdesc, comprtgrpgrpstrorg.estado comprtgrpgrpstrorgest, comprtgrpgrpstrorgest.nombre comprtgrpgrpstrorgestnm, comprtgrpgrpstrorgest.descripcion comprtgrpgrpstrorgestdesc, comprtgrpgrpstrorgest.\"tipoEstado\" comprtgrpgrpstrorgteest, comprtgrpgrpstrorgteest.nombre comprtgrpgrpstrorgteestnm, comprtgrpgrpstrorgteest.descripcion comprtgrpgrpstrorgteestdesc, comprtgrpgrpstr.estado comprtgrpgrpstrest, comprtgrpgrpstrest.nombre comprtgrpgrpstrestnm, comprtgrpgrpstrest.descripcion comprtgrpgrpstrestdesc, comprtgrpgrpstrest.\"tipoEstado\" comprtgrpgrpstrteest, comprtgrpgrpstrteest.nombre comprtgrpgrpstrteestnm, comprtgrpgrpstrteest.descripcion comprtgrpgrpstrteestdesc, comprtgrpgrp.nombre comprtgrpgrpnm, comprtgrpgrp.estado comprtgrpgrpest, comprtgrpgrpest.nombre comprtgrpgrpestnm, comprtgrpgrpest.descripcion comprtgrpgrpestdesc, comprtgrpgrpest.\"tipoEstado\" comprtgrpgrpteest, comprtgrpgrpteest.nombre comprtgrpgrpteestnm, comprtgrpgrpteest.descripcion comprtgrpgrpteestdesc, comprtgrp.participante comprtgrpprt, comprtgrpprt.persona comprtgrpprtip, comprtgrpprtip.\"tipoIdentificacion\" comprtgrpprtiptpid, comprtgrpprtip.\"numeroIdentificacion\" comprtgrpprtipid, comprtgrpprtipid.nombre comprtgrpprtipidnm, comprtgrpprtipid.descripcion comprtgrpprtipiddesc, comprtgrpprtip.\"primerNombre\" comprtgrpprtipn1, comprtgrpprtip.\"segundoNombre\" comprtgrpprtipn2, comprtgrpprtip.\"primerApellido\" comprtgrpprtipa1, comprtgrpprtip.\"segundoApellido\" comprtgrpprtipa2, comprtgrpprtip.\"correoElectronico\" comprtgrpprtipmail, comprtgrpprtip.\"paisTelefono\" comprtgrpprtipps, comprtgrpprtipps.nombre comprtgrpprtippsnm, comprtgrpprtip.\"numeroTelefono\" comprtgrpprtipphone, comprtgrpprtip.estado comprtgrpprtipest, comprtgrpprtipest.nombre comprtgrpprtipestnm, comprtgrpprtipest.descripcion comprtgrpprtipestdesc, comprtgrpprtipest.\"tipoEstado\" comprtgrpprtipteest, comprtgrpprtipteest.nombre comprtgrpprtipteestnm, comprtgrpprtipteest.descripcion comprtgrpprtipteestdesc, comprtgrp.\"puedePublicar\" comprtgrpgrppdpbc, com.contenido comcont,  com.estado comest, comest.nombre comestnm, comest.descripcion comestdesc, comest.\"tipoEstado\" comteest, comteest.nombre comteestnm,  comteest.descripcion comteestdesc ";
 	}
 	@Override
 	protected String preparedFrom() {
@@ -117,12 +131,37 @@ public final class ComentarioPostgreSqlDAO extends SqlDAO<ComentarioEntity> impl
 		var setWhere = true;
 		
 		if (!UtilObject.isNull(entity)){
-			
 			if (!UtilUUID.isDefault(entity.getIdentificador())) {
 				parameters.add(entity.getIdentificador());
 				where.append("WHERE com.identificador = ? ");
 				setWhere = false;
 			}
+			if (!UtilObject.isDefault(entity.getAutor(), ParticipanteGrupoEntity.create())) {
+				parameters.add(entity.getAutor().getIdentificador());
+				where.append(UtilSql.appendWhereOrAnd(setWhere)).append("com.autor = ? ");
+				setWhere = false;
+			}
+			if (!UtilDate.isNull(entity.getFechaComentario())) {
+				parameters.add(entity.getFechaComentario());
+				where.append(UtilSql.appendWhereOrAnd(setWhere)).append("com.fecha = ? ");
+				setWhere = false;
+			}
+			if (!UtilObject.isDefault(entity.getPublicacion(), PublicacionEntity.create())) {
+				parameters.add(entity.getPublicacion().getIdentificador());
+				where.append(UtilSql.appendWhereOrAnd(setWhere)).append("com.publicacion = ? ");
+				setWhere = false;
+			}
+			if (!UtilObject.isDefault(entity.getComentarioPadre(), ComentarioEntity.create())) {
+				parameters.add(entity.getComentarioPadre().getIdentificador());
+				where.append(UtilSql.appendWhereOrAnd(setWhere)).append("com.\"comentarioPadre\" = ? ");
+				setWhere = false;
+
+			}
+			if (!UtilObject.isDefault(entity.getEstado(), EstadoEntity.create())) {
+				parameters.add(entity.getEstado().getIdentificador());
+				where.append(UtilSql.appendWhereOrAnd(setWhere)).append("com.estado = ? ");
+			}
+			
 		}	
 		return where.toString();
 	}
@@ -139,10 +178,10 @@ public final class ComentarioPostgreSqlDAO extends SqlDAO<ComentarioEntity> impl
 				}
 			}	
 		}catch(final SQLException exception) {
-			throw UconnectDataException.create(Messages.SqlDAO.ComentarioSql.TECHNICAL_MESSAGE_SET_PARAMETERS, Messages.SqlDAO.ComentarioSql.USER_MESSAGE_SET_PARAMETERS, exception);
+			throw UconnectDataException.create(UconnectDataMessages.SqlDAO.ComentarioSqlDao.TECHNICAL_MESSAGE_SET_PARAMETERS, UconnectDataMessages.SqlDAO.ComentarioSqlDao.USER_MESSAGE_SET_PARAMETERS, exception);
 			
 		}catch(final Exception exception) {			
-			throw UconnectDataException.create(Messages.SqlDAO.ComentarioSql.TECHNICAL_MESSAGE_SET_PARAMETERS_JAVA_EXCEPTION, Messages.SqlDAO.ComentarioSql.USER_MESSAGE_SET_PARAMETERS, exception);
+			throw UconnectDataException.create(UconnectDataMessages.SqlDAO.ComentarioSqlDao.TECHNICAL_MESSAGE_SET_PARAMETERS_JAVA_EXCEPTION, UconnectDataMessages.SqlDAO.ComentarioSqlDao.USER_MESSAGE_SET_PARAMETERS, exception);
 
 		}
 	}
@@ -152,16 +191,324 @@ final List<ComentarioEntity> result = new ArrayList<>();
 		
 		try (var resultSet = preparedStatement.executeQuery()){
 			while(resultSet.next()) {
-				final ComentarioEntity entityTmp = ComentarioEntity.create();
+				final ComentarioEntity entityTmp = ComentarioEntity.create()
+						.setIdentificador(resultSet.getObject("comid", UUID.class))
+						.setFechaComentario(resultSet.getTimestamp("comfecha").toLocalDateTime())
+						.setPublicacion(
+								PublicacionEntity.create()
+								.setIdentificador(resultSet.getObject("compub", UUID.class))
+								.setFechaPublicacion(resultSet.getTimestamp("pubfecha").toLocalDateTime())
+								//.setGrupo(null)
+								.setAutor(
+										ParticipanteGrupoEntity.create()
+										.setIdentificador(resultSet.getObject("pubautor", UUID.class))
+										.setGrupo(
+												GrupoEntity.create()
+												.setIdentificador(resultSet.getObject("pubprtgrpgrp", UUID.class))
+												.setNombre(resultSet.getString("pubprtgrpgrpnm"))
+												.setEstructura(
+														EstructuraEntity.create()
+														.setIdentificador(resultSet.getObject("pubprtgrpgrpstr", UUID.class))
+														.setNombre(resultSet.getString("pubprtgrpgrpstrnm"))
+														.setTienePadre(resultSet.getBoolean("pubprtgrpgrpstrtnpd"))
+														.setEstructuraPadre(
+																resultSet.getBoolean("pubprtgrpgrpstrtnpd") ? 
+																EstructuraEntity.create()
+																.setIdentificador(resultSet.getObject("pubprtgrpgrpstrpd", UUID.class))
+																: null)
+														.setOrganizacion(
+																OrganizacionEntity.create()
+																.setIdentificador(resultSet.getObject("pubprtgrpgrpstrorg", UUID.class))
+																.setNombre(resultSet.getString("pubprtgrpgrpstrorgnm"))
+																.setDescripcion(resultSet.getString("pubprtgrpgrpstrorgdesc"))
+																.setTipo(
+																		TipoOrganizacionEntity.create()
+																		.setIdentificador(resultSet.getObject("pubprtgrpgrpstrorgtp", UUID.class))
+																		.setNombre(resultSet.getString("pubprtgrpgrpstrorgtpnm"))
+																		.setDescripcion(resultSet.getString("pubprtgrpgrpstrorgtpdesc"))
+																		)
+																.setEstado(
+																		EstadoEntity.create()
+																		.setIdentificador(resultSet.getObject("pubprtgrpgrpstrorgest", UUID.class))
+																		.setNombre(resultSet.getString("pubprtgrpgrpstrorgestnm"))
+																		.setDescripcion(resultSet.getString("pubprtgrpgrpstrorgestdesc"))
+																		.setTipoEstado(
+																				TipoEstadoEntity.create()
+																				.setIdentificador(resultSet.getObject("pubprtgrpgrpstrorgteest", UUID.class))
+																				.setNombre(resultSet.getString("pubprtgrpgrpstrorgteestnm"))
+																				.setDescripcion(resultSet.getString("pubprtgrpgrpstrorgteestdesc"))
+																				)
+																		)
+																)
+														.setEstado(
+																EstadoEntity.create()
+																.setIdentificador(resultSet.getObject("pubprtgrpgrpest", UUID.class))
+																.setNombre(resultSet.getString("pubprtgrpgrpstrestnm"))
+																.setDescripcion(resultSet.getString("pubprtgrpgrpstrestdesc"))
+																.setTipoEstado(
+																		TipoEstadoEntity.create()
+																		.setIdentificador(resultSet.getObject("pubprtgrpgrpstrteest", UUID.class))
+																		.setNombre(resultSet.getString("pubprtgrpgrpstrteestnm"))
+																		.setDescripcion(resultSet.getString("pubprtgrpgrpstrteestdesc"))
+																		)
+																)
+														)
+												.setEstado(
+														EstadoEntity.create()
+														.setIdentificador(resultSet.getObject("pubprtgrpgrpest", UUID.class))
+														.setNombre(resultSet.getString("pubprtgrpgrpestnm"))
+														.setDescripcion(resultSet.getString("pubprtgrpgrpestdesc"))
+														.setTipoEstado(
+																TipoEstadoEntity.create()
+																.setIdentificador(resultSet.getObject("pubprtgrpgrpteest", UUID.class))
+																.setNombre(resultSet.getString("pubprtgrpgrpteestnm"))
+																.setDescripcion(resultSet.getString("pubprtgrpgrpteestdesc"))
+																)
+														)
+												)
+										.setParticipante(
+												ParticipanteEntity.create()
+												.setIdentificador(resultSet.getObject("pubprtgrpprt", UUID.class))
+												.setPersona(
+														PersonaEntity.create()
+														.setIdentificador(resultSet.getObject("pubprtgrpprtip", UUID.class))
+														.setTipoIdentificacion(
+																TipoIdentificacionEntity.create()
+																.setIdentificador(resultSet.getObject("pubprtgrpprtiptpid", UUID.class))
+																.setNombre(resultSet.getString("pubprtgrpprtipiddesc"))
+																.setIndicador(resultSet.getString("pubprtgrpprtipidnm"))
+																)
+														.setNumeroIdentificacion(resultSet.getString("pubprtgrpprtipid"))
+														.setPrimerNombre(resultSet.getString("pubprtgrpprtipn1"))
+														.setSegundoNombre(resultSet.getString("pubprtgrpprtipn2"))
+														.setPrimerApellido(resultSet.getString("pubprtgrpprtipa1"))
+														.setSegundoApellido(resultSet.getString("pubprtgrpprtipa2"))
+														.setCorreo(resultSet.getString("pubprtgrpprtipmail"))
+														.setPaisTelefono(
+																PaisEntity.create()
+																.setIdentificador(resultSet.getObject("pubprtgrpprtipps", UUID.class))
+																.setNombre(resultSet.getString("pubprtgrpprtippsnm"))
+																//.setIndicador(resultSet.getString("pubprtgrpgrpnm"))
+																)
+														.setNumeroTelefono(resultSet.getString("pubprtgrpprtipphone"))
+														.setEstado(
+																EstadoEntity.create()
+																.setIdentificador(resultSet.getObject("pubprtgrpprtipest", UUID.class))
+																.setNombre(resultSet.getString("pubprtgrpprtipestnm"))
+																.setDescripcion(resultSet.getString("pubprtgrpprtipestdesc"))
+																.setTipoEstado(
+																		TipoEstadoEntity.create()
+																		.setIdentificador(resultSet.getObject("pubprtgrpprtipteest", UUID.class))
+																		.setNombre(resultSet.getString("pubprtgrpprtipteestnm"))
+																		.setDescripcion(resultSet.getString("pubprtgrpprtipteestdesc"))
+																		)
+																)
+														)
+												.setEstado(
+														EstadoEntity.create()
+														.setIdentificador(resultSet.getObject("comid", UUID.class))
+														.setNombre(resultSet.getString("pubprtgrpgrpnm"))
+														.setDescripcion(resultSet.getString("pubprtgrpgrpnm"))
+														.setTipoEstado(
+																TipoEstadoEntity.create()
+																.setIdentificador(resultSet.getObject("comid", UUID.class))
+																.setNombre(resultSet.getString("pubprtgrpgrpnm"))
+																.setDescripcion(resultSet.getString("pubprtgrpgrpnm"))
+																)
+														)
+												)
+										.setPuedePublicar(resultSet.getBoolean("pubprtgrpgrppdpbc"))
+										.setEstado(
+												EstadoEntity.create()
+												.setIdentificador(resultSet.getObject("comid", UUID.class))
+												.setNombre(resultSet.getString("pubprtgrpgrpnm"))
+												.setDescripcion(resultSet.getString("pubprtgrpgrpnm"))
+												.setTipoEstado(
+														TipoEstadoEntity.create()
+														.setIdentificador(resultSet.getObject("comid", UUID.class))
+														.setNombre(resultSet.getString("pubprtgrpgrpnm"))
+														.setDescripcion(resultSet.getString("pubprtgrpgrpnm"))
+														)
+												)
+										)
+								.setTitulo(resultSet.getString("pubtitulo"))
+								.setContenido(resultSet.getString("pubcont"))
+								.setEstado(
+										EstadoEntity.create()
+										.setIdentificador(resultSet.getObject("pubestado", UUID.class))
+										.setNombre(resultSet.getString("pubestnm"))
+										.setDescripcion(resultSet.getString("pubestdesc"))
+										.setTipoEstado(
+												TipoEstadoEntity.create()
+												.setIdentificador(resultSet.getObject("pubteest", UUID.class))
+												.setNombre(resultSet.getString("pubteestnm"))
+												.setDescripcion(resultSet.getString("pubteestdesc"))
+												)
+										)
+								)
+						.setTienePadre(resultSet.getBoolean("comtnpdr"))
+						.setComentarioPadre(
+								resultSet.getBoolean("comtndr") ?
+										ComentarioEntity.create()
+										.setIdentificador(resultSet.getObject("compadre", UUID.class))
+										: null
+								)
+						.setAutor(
+								ParticipanteGrupoEntity.create()
+								.setIdentificador(resultSet.getObject("comautor", UUID.class))
+								.setGrupo(
+										GrupoEntity.create()
+										.setIdentificador(resultSet.getObject("comprtgrpgrp", UUID.class))
+										.setNombre(resultSet.getString("comprtgrpgrpnm"))
+										.setEstructura(
+												EstructuraEntity.create()
+												.setIdentificador(resultSet.getObject("comprtgrpgrpstr", UUID.class))
+												.setNombre((resultSet.getString("comprtgrpgrpstrnm")))
+												.setTienePadre(resultSet.getBoolean("comprtgrpgrpstrtnpd"))
+												.setEstructuraPadre(
+														resultSet.getBoolean("comprtgrpgrpstrtnpd") ?
+														EstructuraEntity.create()
+														.setIdentificador(resultSet.getObject("comprtgrpgrpstrpd", UUID.class))
+														: null
+														)
+												.setOrganizacion(
+														OrganizacionEntity.create()
+														.setIdentificador(resultSet.getObject("comprtgrpgrpstrorg", UUID.class))
+														.setNombre((resultSet.getString("comprtgrpgrpstrorgnm")))
+														.setDescripcion((resultSet.getString("comprtgrpgrpstrorgdesc")))
+														.setTipo(
+																TipoOrganizacionEntity.create()
+																.setIdentificador(resultSet.getObject("comprtgrpgrpstrorgtp", UUID.class))
+																.setNombre((resultSet.getString("comprtgrpgrpstrorgtpnm")))
+																.setDescripcion((resultSet.getString("comprtgrpgrpstrorgtpdesc")))
+																)
+														.setEstado(
+																EstadoEntity.create()
+																.setIdentificador(resultSet.getObject("comprtgrpgrpstrorgest", UUID.class))
+																.setNombre((resultSet.getString("comprtgrpgrpstrorgestnm")))
+																.setDescripcion((resultSet.getString("comprtgrpgrpstrorgestdesc")))
+																.setTipoEstado(
+																		TipoEstadoEntity.create()
+																		.setIdentificador(resultSet.getObject("comprtgrpgrpstrorgteest", UUID.class))
+																		.setNombre((resultSet.getString("comprtgrpgrpstrorgteestnm")))
+																		.setDescripcion((resultSet.getString("comprtgrpgrpstrorgteestdesc")))
+																		)
+																)
+														)
+												.setEstado(
+														EstadoEntity.create()
+														.setIdentificador(resultSet.getObject("comprtgrpgrpstrest", UUID.class))
+														.setNombre((resultSet.getString("comprtgrpgrpstrestnm")))
+														.setDescripcion((resultSet.getString("comprtgrpgrpstrestdesc")))
+														.setTipoEstado(
+																TipoEstadoEntity.create()
+																.setIdentificador(resultSet.getObject("comprtgrpgrpstrteest", UUID.class))
+																.setNombre((resultSet.getString("comprtgrpgrpstrteestnm")))
+																.setDescripcion((resultSet.getString("comprtgrpgrpstrteestdesc")))
+																)
+														)
+												)
+										.setEstado(
+												EstadoEntity.create()
+												.setIdentificador(resultSet.getObject("comprtgrpgrpest", UUID.class))
+												.setNombre((resultSet.getString("comprtgrpgrpestnm")))
+												.setDescripcion((resultSet.getString("comprtgrpgrpestdesc")))
+												.setTipoEstado(
+														TipoEstadoEntity.create()
+														.setIdentificador(resultSet.getObject("comprtgrpgrpteest", UUID.class))
+														.setNombre((resultSet.getString("comprtgrpgrpteestnm")))
+														.setDescripcion((resultSet.getString("comprtgrpgrpteestdesc")))
+														)
+												)
+										)
+								.setParticipante(
+										ParticipanteEntity.create()
+										.setIdentificador(resultSet.getObject("comprtgrpprt", UUID.class))
+										.setPersona(
+												PersonaEntity.create()
+												.setIdentificador(resultSet.getObject("comprtgrpprtip", UUID.class))
+												.setTipoIdentificacion(
+														TipoIdentificacionEntity.create()
+														.setIdentificador(resultSet.getObject("comprtgrpprtiptpid", UUID.class))
+														.setNombre((resultSet.getString("comprtgrpprtipidnm")))
+														.setIndicador((resultSet.getString("comprtgrpprtipiddesc")))
+														)
+												.setNumeroIdentificacion((resultSet.getString("comprtgrpprtipid")))
+												.setPrimerNombre((resultSet.getString("comprtgrpprtipn1")))
+												.setSegundoNombre((resultSet.getString("comprtgrpprtipn2")))
+												.setPrimerApellido((resultSet.getString("comprtgrpprtipa1")))
+												.setSegundoApellido((resultSet.getString("comprtgrpprtipa2")))
+												.setCorreo((resultSet.getString("comprtgrpprtipmail")))
+												.setPaisTelefono(
+														PaisEntity.create()
+														.setIdentificador(resultSet.getObject("comprtgrpprtipps", UUID.class))
+														.setNombre((resultSet.getString("comprtgrpprtippsnm")))
+														//.setIndicador((resultSet.getString("pubprtgrpgrpnm")))
+														)
+												.setNumeroTelefono((resultSet.getString("comprtgrpprtipphone")))
+												.setEstado(
+														EstadoEntity.create()
+														.setIdentificador(resultSet.getObject("comprtgrpprtipest", UUID.class))
+														.setNombre((resultSet.getString("comprtgrpprtipestnm")))
+														.setDescripcion((resultSet.getString("comprtgrpprtipestdesc")))
+														.setTipoEstado(
+																TipoEstadoEntity.create()
+																.setIdentificador(resultSet.getObject("comprtgrpprtipteest", UUID.class))
+																.setNombre((resultSet.getString("comprtgrpprtipteestnm")))
+																.setDescripcion((resultSet.getString("comprtgrpprtipteestdesc")))
+																)
+														)
+												)
+										.setEstado(
+												EstadoEntity.create()
+//												.setIdentificador(resultSet.getObject("comid", UUID.class))
+//												.setNombre((resultSet.getString("pubprtgrpgrpnm")))
+//												.setDescripcion((resultSet.getString("pubprtgrpgrpnm")))
+//												.setTipoEstado(
+//														TipoEstadoEntity.create()
+//														.setIdentificador(resultSet.getObject("comid", UUID.class))
+//														.setNombre((resultSet.getString("pubprtgrpgrpnm")))
+//														.setDescripcion((resultSet.getString("pubprtgrpgrpnm")))
+//														)
+												)
+										)
+								.setPuedePublicar(resultSet.getBoolean("comprtgrpgrppdpbc"))
+								.setEstado(
+										EstadoEntity.create()
+										.setIdentificador(resultSet.getObject("comid", UUID.class))
+										.setNombre((resultSet.getString("pubprtgrpgrpnm")))
+										.setDescripcion((resultSet.getString("pubprtgrpgrpnm")))
+										.setTipoEstado(
+												TipoEstadoEntity.create()
+												.setIdentificador(null)
+												.setNombre((resultSet.getString("pubprtgrpgrpnm")))
+												.setDescripcion((resultSet.getString("pubprtgrpgrpnm")))
+												)
+										)
+								)
+						.setContenido((resultSet.getString("comcont")))
+						.setEstado(
+								EstadoEntity.create()
+								.setIdentificador(resultSet.getObject("comest", UUID.class))
+								.setNombre((resultSet.getString("comestnm")))
+								.setDescripcion((resultSet.getString("comestdesc")))
+								.setTipoEstado(
+										TipoEstadoEntity.create()
+										.setIdentificador(resultSet.getObject("comteest", UUID.class))
+										.setNombre((resultSet.getString("comteestnm")))
+										.setDescripcion((resultSet.getString("comteestdesc")))
+										)
+								)
+						;
 				result.add(entityTmp);
 			}
 			return result;
 			
 		} catch(final SQLException exception) {			
-			throw UconnectDataException.create(Messages.SqlDAO.ComentarioSql.TECHNICAL_MESSAGE_EXECUTE, Messages.SqlDAO.ComentarioSql.USER_MESSAGE_EXECUTE, exception);
+			throw UconnectDataException.create(UconnectDataMessages.SqlDAO.ComentarioSqlDao.TECHNICAL_MESSAGE_EXECUTE, UconnectDataMessages.SqlDAO.ComentarioSqlDao.USER_MESSAGE_EXECUTE, exception);
 			
 		}catch(final Exception exception) {			
-			throw UconnectDataException.create(Messages.SqlDAO.ComentarioSql.TECHNICAL_MESSAGE_EXECUTE_JAVA_EXCEPTION, Messages.SqlDAO.ComentarioSql.USER_MESSAGE_EXECUTE, exception);
+			throw UconnectDataException.create(UconnectDataMessages.SqlDAO.ComentarioSqlDao.TECHNICAL_MESSAGE_EXECUTE_JAVA_EXCEPTION, UconnectDataMessages.SqlDAO.ComentarioSqlDao.USER_MESSAGE_EXECUTE, exception);
 
 		}
 	}
