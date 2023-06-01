@@ -141,7 +141,7 @@ public final class ComentarioPostgreSqlDAO extends SqlDAO<ComentarioEntity> impl
 				where.append(UtilSql.appendWhereOrAnd(setWhere)).append("com.autor = ? ");
 				setWhere = false;
 			}
-			if (!UtilDate.isNull(entity.getFechaComentario())) {
+			/*if (!UtilDate.isNull(entity.getFechaComentario())) {
 				parameters.add(entity.getFechaComentario());
 				where.append(UtilSql.appendWhereOrAnd(setWhere)).append("com.fecha = ? ");
 				setWhere = false;
@@ -150,12 +150,11 @@ public final class ComentarioPostgreSqlDAO extends SqlDAO<ComentarioEntity> impl
 				parameters.add(entity.getPublicacion().getIdentificador());
 				where.append(UtilSql.appendWhereOrAnd(setWhere)).append("com.publicacion = ? ");
 				setWhere = false;
-			}
+			}*/
 			if (!UtilObject.isDefault(entity.getComentarioPadre(), ComentarioEntity.create())) {
 				parameters.add(entity.getComentarioPadre().getIdentificador());
 				where.append(UtilSql.appendWhereOrAnd(setWhere)).append("com.\"comentarioPadre\" = ? ");
 				setWhere = false;
-
 			}
 			if (!UtilObject.isDefault(entity.getEstado(), EstadoEntity.create())) {
 				parameters.add(entity.getEstado().getIdentificador());
@@ -348,7 +347,7 @@ final List<ComentarioEntity> result = new ArrayList<>();
 								)
 						.setTienePadre(resultSet.getBoolean("comtnpdr"))
 						.setComentarioPadre(
-								resultSet.getBoolean("comtndr") ?
+								resultSet.getBoolean("comtnpdr") ?
 										ComentarioEntity.create()
 										.setIdentificador(resultSet.getObject("compadre", UUID.class))
 										: null
