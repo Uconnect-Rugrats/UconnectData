@@ -242,7 +242,7 @@ public final class ComentarioPostgreSqlDAO extends SqlDAO<ComentarioEntity> impl
 								)
 						.setTienePadre(resultSet.getBoolean("comtnpd"))
 						.setComentarioPadre(
-								ComentarioEntity.create().getTienePadre() ?
+								resultSet.getBoolean("comtnpd") ?
 										ComentarioEntity.create().setIdentificador(resultSet.getObject("compadre", UUID.class))
 										: null
 								)
