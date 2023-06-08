@@ -123,12 +123,12 @@ public final class ComentarioPostgreSqlDAO extends SqlDAO<ComentarioEntity> impl
 
 	@Override
 	protected String preparedSelect() {
-		return "SELECT com.identificador comid, com.fecha comfecha, com.autor comprtgrp, comprtgrp.participante comprtgrpprt, comprtgrpprt.persona comprtgrpprtip, comprtgrpprtip.\"primerNombre\" comprtgrpprtipn1, comprtgrpprtip.\"segundoNombre\" comprtgrpprtipn2, comprtgrpprtip.\"primerApellido\" comprtgrpprtipa1, comprtgrpprtip.\"segundoApellido\" comprtgrpprtipa2, comprtgrpprtip.\"correoElectronico\" comprtgrpprtipcorreo, comprtgrpprtip.estado comprtgrpprtipes, comprtgrpprt.estado comprtgrpprtipes, com.publicacion pub, pub.estado pubes, com.\"tienePadre\" comtnpd, com.\"comentarioPadre\" compadre, com.contenido comcont, com.estado comes, comest.nombre comesnm ";
+		return " SELECT comentario.identificador AS comentario_identificador, comentario.fecha AS comentario_fecha, publicacion.publicacion_identificador AS comentario_publicacion, autor.participante_correoelectronico AS autor_correoelectronico, autor.participante_primernombre AS autor_primernombre, autor.participante_segundonombre AS autor_segundonomrbre, autor.participante_primerapellido AS autor_primerapellido, autor.participante_segundoapellido AS autor_segundoapellido, comentario.\"tienePadre\" AS comentario_tienepadre, comentario.\"comentarioPadre\" AS comentario_comentariopadre, comentario.contenido AS comentario_contenido, estado.estado_nombre AS comentario_estado, CASE WHEN autor.participantegrupo_estadoreal = true AND publicacion.publicacion_estadoreal = true AND estado.estado_nombre::text = 'Publicado'::text THEN true ELSE false END AS comentario_estadoreal ";
 	}
 
 	@Override
 	protected String preparedFrom() {
-		return "FROM \"Comentario\" com LEFT JOIN \"Publicacion\" pub ON pub.identificador = com.publicacion JOIN \"ParticipanteGrupo\" pubprtgrp ON pubprtgrp.identificador = pub.autor JOIN \"Participante\" pubprtgrpprt ON pubprtgrp.participante = pubprtgrpprt.identificador JOIN \"Persona\" pubprtgrpprtip ON pubprtgrpprt.persona = pubprtgrpprtip.identificador JOIN \"Estado\" pubprtgrpprtest ON pubprtgrpprt.estado = pubprtgrpprtest.identificador JOIN \"Estado\" pubest ON pubest.identificador = pub.estado JOIN \"ParticipanteGrupo\" comprtgrp ON comprtgrp.identificador = com.autor JOIN \"Participante\" comprtgrpprt ON comprtgrp.participante = comprtgrpprt.identificador JOIN \"Persona\" comprtgrpprtip ON comprtgrpprt.persona = comprtgrpprtip.identificador JOIN \"Estado\" comprtgrpprtipest ON comprtgrpprtipest.identificador = comprtgrpprtip.estado JOIN \"Estado\" comprtgrpprtest ON comprtgrpprt.estado = comprtgrpprtest.identificador JOIN \"Estado\" comest ON comest.identificador = com.estado JOIN \"TipoEstado\" comteest ON comteest.identificador = comest.\"tipoEstado\" ";
+		return " FROM \"Comentario\" COMENTARIO JOIN view_publicacion publicacion ON publicacion.publicacion_identificador = COMENTARIO.publicacion JOIN view_participantegrupo autor ON autor.participantegrupo_identificador = COMENTARIO.autor JOIN view_estado ESTADO ON ESTADO.estado_identificador = COMENTARIO.estado ";
 	}
 
 	@Override
@@ -140,32 +140,32 @@ public final class ComentarioPostgreSqlDAO extends SqlDAO<ComentarioEntity> impl
 		if (!UtilObject.isNull(entity)) {
 			if (!UtilUUID.isDefault(entity.getIdentificador())) {
 				parameters.add(entity.getIdentificador());
-				where.append("WHERE com.identificador = ? ");
+				where.append("WHERE comentario.identificador = ? ");
 				setWhere = false;
 			}
 			if (!UtilUUID.isDefault(entity.getAutor().getIdentificador())) {
 				parameters.add(entity.getAutor().getIdentificador());
-				where.append(UtilSql.appendWhereOrAnd(setWhere)).append("com.autor = ? ");
+				where.append(UtilSql.appendWhereOrAnd(setWhere)).append("comentario.autor = ? ");
 				setWhere = false;
 			}
 //			if (!UtilDate.isNull(entity.getFechaComentario())) {
 //				parameters.add(entity.getFechaComentario());
-//				where.append(UtilSql.appendWhereOrAnd(setWhere)).append("com.fecha = ? ");
+//				where.append(UtilSql.appendWhereOrAnd(setWhere)).append("comentario.fecha = ? ");
 //				setWhere = false;
 //			}
 			if (!UtilUUID.isDefault(entity.getPublicacion().getIdentificador())) {
 				parameters.add(entity.getPublicacion().getIdentificador());
-				where.append(UtilSql.appendWhereOrAnd(setWhere)).append("com.publicacion = ? ");
+				where.append(UtilSql.appendWhereOrAnd(setWhere)).append("comentario.publicacion = ? ");
 				setWhere = false;
 			}
 			if (!UtilUUID.isDefault(entity.getComentarioPadre().getIdentificador())) {
 				parameters.add(entity.getComentarioPadre().getIdentificador());
-				where.append(UtilSql.appendWhereOrAnd(setWhere)).append("com.\"comentarioPadre\" = ? ");
+				where.append(UtilSql.appendWhereOrAnd(setWhere)).append("comentario.\"comentarioPadre\" = ? ");
 				setWhere = false;
 			}
 			if (!UtilUUID.isDefault(entity.getEstado().getIdentificador())) {
 				parameters.add(entity.getEstado().getIdentificador());
-				where.append(UtilSql.appendWhereOrAnd(setWhere)).append("com.estado = ? ");
+				where.append(UtilSql.appendWhereOrAnd(setWhere)).append("comentario.estado = ? ");
 			}
 
 		}
@@ -174,7 +174,7 @@ public final class ComentarioPostgreSqlDAO extends SqlDAO<ComentarioEntity> impl
 
 	@Override
 	protected String preparedOrderBy() {
-		return "ORDER BY com.identificador ASC ";
+		return "ORDER BY comentario.identificador;";
 	}
 
 	@Override
@@ -205,53 +205,39 @@ public final class ComentarioPostgreSqlDAO extends SqlDAO<ComentarioEntity> impl
 		try (final var resultSet = preparedStatement.executeQuery()) {
 			while (resultSet.next()) {
 				ComentarioEntity entityTmp = ComentarioEntity.create()
-						.setIdentificador(resultSet.getObject("comid", UUID.class))
-						.setFechaComentario(resultSet.getTimestamp("comfecha").toLocalDateTime())
-						.setAutor(
-								ParticipanteGrupoEntity.create()
-								.setIdentificador(resultSet.getObject("comprtgrp", UUID.class))
-								.setParticipante(
-										ParticipanteEntity.create()
-										.setIdentificador(resultSet.getObject("comprtgrpprt", UUID.class))
-										.setPersona(
-												PersonaEntity.create()
-												.setIdentificador(resultSet.getObject("comprtgrpprtip", UUID.class))
-												.setPrimerNombre(resultSet.getString("comprtgrpprtipn1"))
-												.setSegundoNombre(resultSet.getString("comprtgrpprtipn2"))
-												.setPrimerApellido(resultSet.getString("comprtgrpprtipa1"))
-												.setSegundoApellido(resultSet.getString("comprtgrpprtipa2"))
-												.setCorreo(resultSet.getString("comprtgrpprtipcorreo"))
-												.setEstado(
-														EstadoEntity.create()
-														.setIdentificador(resultSet.getObject("comprtgrpprtipes", UUID.class))
-														)
-												)
-										.setEstado(
-												EstadoEntity.create()
-												.setIdentificador(resultSet.getObject("comprtgrpprtipes", UUID.class))
-												)
-										)
-								)
+						.setIdentificador(resultSet.getObject("comentario_identificador", UUID.class))
+						.setFechaComentario(resultSet.getTimestamp("comentario_fecha").toLocalDateTime())
 						.setPublicacion(
 								PublicacionEntity.create()
-								.setIdentificador(resultSet.getObject("pub", UUID.class))
-								.setEstado(
-										EstadoEntity.create().
-										setIdentificador(resultSet.getObject("pubes", UUID.class))
+							.setIdentificador(resultSet.getObject("comentario_publicacion", UUID.class))
+								)
+						.setAutor(
+								ParticipanteGrupoEntity.create()
+								.setParticipante(
+										ParticipanteEntity.create()
+										.setPersona(
+												PersonaEntity.create()
+												.setCorreo(resultSet.getString("autor_correoelectronico"))
+												.setPrimerNombre(resultSet.getString("autor_primernombre"))
+												.setSegundoNombre(resultSet.getString("autor_segundonomrbre"))
+												.setPrimerApellido(resultSet.getString("autor_primerapellido"))
+												.setSegundoApellido(resultSet.getString("autor_segundoapellido"))
+												)
 										)
 								)
-						.setTienePadre(resultSet.getBoolean("comtnpd"))
+						.setTienePadre(resultSet.getBoolean("comentario_tienepadre"))
 						.setComentarioPadre(
-								resultSet.getBoolean("comtnpd") ?
-										ComentarioEntity.create().setIdentificador(resultSet.getObject("compadre", UUID.class))
-										: null
+								resultSet.getBoolean("comentario_tienepadre") ? 
+								ComentarioEntity.create()
+								.setIdentificador(resultSet.getObject("comentario_comentariopadre", UUID.class))
+								: null
 								)
-						.setContenido(resultSet.getString("comcont"))
+						.setContenido(resultSet.getString("comentario_contenido"))
 						.setEstado(
 								EstadoEntity.create()
-								.setIdentificador(resultSet.getObject("comes", UUID.class))
-								.setNombre(resultSet.getString("comesnm"))
+								.setNombre(resultSet.getString("comentario_estado"))
 								)
+						//.setEstadoReal(resultSet.getBoolean("comentario_estadoreal"))
 						;
 						
 				result.add(entityTmp);
